@@ -41,7 +41,7 @@ class LoadTester:
         self.prefix = prefix
         self.endpoint = endpoint
 
-        self.queue = Queue(maxsize=256)
+        self.queue = Queue()
         self.responses = defaultdict(lambda: [0, 0, 0])
         self.count = 0
         self.total_count = 0
@@ -107,7 +107,7 @@ class LoadTester:
     def consumer(self):
         while True:
             entity, req = self.queue.get()
-            if not entity:
+            if self.stop or not entity:
                 self.queue.put(STOP)
                 break
             res = requests.get(req)
