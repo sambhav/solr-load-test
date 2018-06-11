@@ -44,6 +44,8 @@ class LoadTester:
         self.queue = Queue(maxsize=256)
         self.responses = defaultdict(lambda: [0, 0, 0])
         self.count = 0
+        self.total_count = 0
+        self.start_time = 0
         self.lock = Lock()
         self.stop = False
         self.ratio = percent/100
@@ -117,15 +119,20 @@ class LoadTester:
 
     def print_stats(self):
         if self.count:
+            total_time = time.time() - self.start_time
             print('\n')
             print("="*55)
             print(HEADER_FMT_STRING.format("ENTITY", "OK", "NOT OK", "PERCENT"))
             print("="*55)
+            total_hits = 0
             for entity, values in self.responses.items():
+                total_hits += values[1]
                 print(FMT_STRING.format(entity, values[1], values[0], values[1]/(values[0]+values[1])*100))
                 print("-"*55)
             print("="*55)
             print("Total requests: {}".format(t.count))
+            print("Total time: {:.2f}".format(total_time))
+            print("Hits/sec: {:.2f}".format(total_hits/total_time))
             print('\n')
         else:
             print("No requests made.")
@@ -140,4 +147,5 @@ def signal_handler(tester, *args):
 if __name__ == "__main__":
     t = LoadTester("access_logs")
     signal.signal(signal.SIGINT, partial(signal_handler, t))
+    t.start_time = time.time()
     t.test()
