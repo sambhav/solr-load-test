@@ -81,6 +81,8 @@ class LoadTester:
     def read(self):
         file = open(self.log_path)
         file.seek(0, 2)
+        print("Watching logs")
+        self.start_time = time.time()
         while True:
             if self.stop:
                 break
@@ -147,5 +149,4 @@ def signal_handler(tester, *args):
 if __name__ == "__main__":
     t = LoadTester("access_logs")
     signal.signal(signal.SIGINT, partial(signal_handler, t))
-    t.start_time = time.time()
     t.test()
