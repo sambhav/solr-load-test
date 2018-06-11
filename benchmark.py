@@ -35,7 +35,7 @@ ENTITIES = {
 
 class LoadTester:
 
-    def __init__(self, log_path, prefix="http://195.201.149.141:8983/solr", max_workers=20, endpoint="advanced", percent=33):
+    def __init__(self, log_path, prefix="http://195.201.149.141:8983/solr", max_workers=20, endpoint="advanced", ratio=3):
         self.log_path = log_path
         self.max_workers = max_workers
         self.prefix = prefix
@@ -48,7 +48,7 @@ class LoadTester:
         self.start_time = 0
         self.lock = Lock()
         self.stop = False
-        self.ratio = int(100/percent + 0.5)
+        self.ratio = ratio
         self.executor = None
         self.threads = []
 
@@ -107,7 +107,7 @@ class LoadTester:
             req = self.parse_line(line)
             if req:
                 self.total_count += 1
-                to_queue = self.total_count % self.ratio
+                to_queue = (self.total_count % self.ratio) == 0
                 if to_queue:
                     self.queue.put(req)
         self.queue.put(STOP)
