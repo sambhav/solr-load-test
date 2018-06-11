@@ -54,8 +54,10 @@ class LoadTester:
         print("File: {}".format(self.log_path))
 
     def parse_line(self, line):
-        request = line.split(" ")[7]
-        if "?query" in request:
+        ls = line.split()
+        status = int(ls[9])
+        request = ls[7]
+        if "?query" in request and status < 500:
             parsed_req = urlparse(request)
             entity = list(filter(bool, parsed_req.path.split("/")))[-1]
             if entity not in ENTITIES:
