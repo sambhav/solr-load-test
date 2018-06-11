@@ -59,7 +59,7 @@ class LoadTester:
         ls = line.split()
         status = int(ls[9])
         request = ls[7]
-        if "?query" in request and status < 500:
+        if "?query" in request and status < 400:
             parsed_req = urlparse(request)
             entity = list(filter(bool, parsed_req.path.split("/")))[-1]
             if entity not in ENTITIES:
