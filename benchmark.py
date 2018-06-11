@@ -116,7 +116,7 @@ class LoadTester:
         if self.count:
             print('\n')
             print("="*50)
-            print("Entity\t\t\tOk\t\tNot Ok")
+            print("Entity\t\t\tNot Ok\t\tOk")
             print("="*50)
             for entity, values in self.responses.items():
                 print("{}\t\t{}\t\t{}".format(entity, values[0], values[1]))
