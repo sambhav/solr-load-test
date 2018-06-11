@@ -57,13 +57,9 @@ class LoadTester:
         print("File: {}".format(self.log_path))
 
     def parse_line(self, line):
-        ls = line.split()
-        try:
-            status = int(ls[9])
-        except ValueError:
-            status = 403
-            print(line)
-        request = ls[7]
+        ls = line.split('"')
+        request = ls[1][4:-9]
+        status = int(ls[2].split()[0])
         if "?query" in request and status < 400:
             parsed_req = urlparse(request)
             entity = list(filter(bool, parsed_req.path.split("/")))[-1]
