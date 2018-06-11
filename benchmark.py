@@ -58,7 +58,11 @@ class LoadTester:
 
     def parse_line(self, line):
         ls = line.split()
-        status = int(ls[9])
+        try:
+            status = int(ls[9])
+        except ValueError:
+            status = 403
+            print(line)
         request = ls[7]
         if "?query" in request and status < 400:
             parsed_req = urlparse(request)
