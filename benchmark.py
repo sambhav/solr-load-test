@@ -3,7 +3,7 @@ import signal
 
 from urllib.parse import parse_qs, urlencode, urlparse
 from queue import Queue
-from concurrent.futures import ThreadPoolExecutor
+from threading import Thread
 from collections import defaultdict
 from threading import Lock
 from functools import partial
@@ -50,6 +50,7 @@ class LoadTester:
         self.stop = False
         self.ratio = int(100/percent + 0.5)
         self.executor = None
+        self.threads = []
 
         print("Stating benchmark against:")
         print("URL: {}".format(self.prefix))
@@ -93,10 +94,13 @@ class LoadTester:
             yield line
 
     def test(self):
-        self.executor = executor = ThreadPoolExecutor(max_workers=self.max_workers)
-        executor.submit(self.producer)
+        producer = Thread(target=self.producer)
+        self.threads.append(producer)
+        producer.start()
         for _ in range(self.max_workers-1):
-            executor.submit(self.consumer)
+            consumer = Thread(target=self.consumer)
+            self.threads.append(consumer)
+            consumer.start()
 
     def producer(self):
         for line in self.read():
@@ -119,8 +123,9 @@ class LoadTester:
             with self.lock:
                 self.responses[entity][status] += 1
                 self.count += 1
-                if self.count % 100 == 0:
-                    print("Completed {} requests".format(self.count))
+                ccount = self.count
+            if ccount % 100 == 0:
+                print("Completed {} requests".format(self.count))
 
     def print_stats(self):
         if self.count:
@@ -146,7 +151,8 @@ class LoadTester:
 def signal_handler(tester, *args):
     tester.stop = True
     print("Stopping script. Please wait...")
-    tester.executor.shutdown()
+    for t in tester.threads:
+        t.join()
     tester.print_stats()
     print("Done")
 
