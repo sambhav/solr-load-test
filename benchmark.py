@@ -12,7 +12,8 @@ from random import random
 import requests
 
 STOP = (None, None)
-
+HEADER_FMT_STRING = "|{:^20}|{:^10}|{:^10}|{:^10}|"
+FMT_STRING = "|{:^20}|{:^10}|{:^10}|{:^10.2f}|"
 ENTITIES = {
     "annotation",
     "area",
@@ -115,13 +116,13 @@ class LoadTester:
     def print_stats(self):
         if self.count:
             print('\n')
-            print("="*50)
-            print("Entity\t\t\tNot Ok\t\tOk")
-            print("="*50)
+            print("="*55)
+            print(HEADER_FMT_STRING.format("ENTITY", "OK", "NOT OK", "PERCENT"))
+            print("="*55)
             for entity, values in self.responses.items():
-                print("{}\t\t{}\t\t{}".format(entity, values[0], values[1]))
-                print("-"*50)
-            print("="*50)
+                print(FMT_STRING.format(entity, values[1], values[0], values[1]/(values[0]+values[1])*100))
+                print("-"*55)
+            print("="*55)
             print("Total requests: {}".format(t.count))
             print('\n')
         else:
