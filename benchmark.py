@@ -48,7 +48,7 @@ class LoadTester:
         self.start_time = 0
         self.lock = Lock()
         self.stop = False
-        self.ratio = percent/100
+        self.ratio = int(100/percent + 0.5)
         self.executor = None
 
         print("Stating benchmark against:")
@@ -101,9 +101,11 @@ class LoadTester:
     def producer(self):
         for line in self.read():
             req = self.parse_line(line)
-            to_queue = random() < self.ratio
-            if req and to_queue:
-                self.queue.put(req)
+            if req:
+                self.total_count += 1
+                to_queue = self.total_count % self.ratio
+                if to_queue:
+                    self.queue.put(req)
         self.queue.put(STOP)
 
     def consumer(self):
@@ -113,8 +115,9 @@ class LoadTester:
                 self.queue.put(STOP)
                 break
             res = requests.get(req)
+            status = res.ok
             with self.lock:
-                self.responses[entity][res.ok] += 1
+                self.responses[entity][status] += 1
                 self.count += 1
                 if self.count % 100 == 0:
                     print("Completed {} requests".format(self.count))
@@ -133,6 +136,7 @@ class LoadTester:
                 print("-"*55)
             print("="*55)
             print("Total requests: {}".format(t.count))
+            print("Original total requests: {}".format(t.total_count))
             print("Total time: {:.2f}".format(total_time))
             print("Hits/sec: {:.2f}".format(total_hits/total_time))
             print('\n')
