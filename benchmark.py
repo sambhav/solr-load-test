@@ -104,7 +104,10 @@ class LoadTester:
 
     def producer(self):
         for line in self.read():
-            req = self.parse_line(line)
+            try:
+                req = self.parse_line(line)
+            except:
+                req = None
             if req:
                 self.total_count += 1
                 to_queue = (self.total_count % self.ratio) == 0
