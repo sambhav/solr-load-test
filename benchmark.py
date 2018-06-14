@@ -131,9 +131,9 @@ class LoadTester:
                 self.responses[entity][status] += 1
                 self.count += 1
                 ccount = self.count
-            if ccount % 2000 == 0:
+            if ccount % 5000 == 0:
                 self.print_stats()
-            elif ccount % 500 == 0:
+            elif ccount % 1000 == 0:
                 print("{} requests made.".format(ccount))
 
     def print_stats(self):
@@ -151,6 +151,7 @@ class LoadTester:
             print("="*55)
             print("Total requests: {}".format(t.count))
             print("Original total requests: {}".format(t.total_count))
+            print("Keepup percent: {:.2f}".format((t.count/t.total_count)*100))
             print("Total time: {:.2f}".format(total_time))
             print("Hits/sec: {:.2f}".format(total_hits/total_time))
             print('\n')
