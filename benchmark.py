@@ -121,8 +121,12 @@ class LoadTester:
             if self.stop or not entity:
                 self.queue.put(STOP)
                 break
-            res = requests.get(req)
-            status = res.ok
+            try:
+                res = requests.get(req)
+            except:
+                status = False
+            else:
+                status = res.ok
             with self.lock:
                 self.responses[entity][status] += 1
                 self.count += 1
