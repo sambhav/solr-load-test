@@ -35,7 +35,7 @@ ENTITIES = {
 
 class LoadTester:
 
-    def __init__(self, log_path, prefix="http://195.201.149.141:8983/solr", max_workers=20, endpoint="advanced", ratio=1):
+    def __init__(self, log_path, prefix="http://195.201.47.148/solr", max_workers=20, endpoint="advanced", ratio=1):
         self.log_path = log_path
         self.max_workers = max_workers
         self.prefix = prefix
