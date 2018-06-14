@@ -124,9 +124,9 @@ class LoadTester:
                 self.responses[entity][status] += 1
                 self.count += 1
                 ccount = self.count
-            if ccount % 50000 == 0:
+            if ccount % 2000 == 0:
                 self.print_stats()
-            elif ccount % 2000 == 0:
+            elif ccount % 500 == 0:
                 print("{} requests made.".format(ccount))
 
     def print_stats(self):
