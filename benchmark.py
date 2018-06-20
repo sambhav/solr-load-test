@@ -1,3 +1,5 @@
+import os
+import sys
 import time
 import signal
 
@@ -80,29 +82,45 @@ class LoadTester:
         return None
 
     def read(self):
-        file = open(self.log_path)
-        file.seek(0, 2)
-        print("Watching logs")
+        # Tail -f code with log rotation adapted from
+        # https://stackoverflow.com/a/25632664/5458985
+        current = open(self.log_path)
+        current.seek(0, 2)
+        curino = os.fstat(current.fileno()).st_ino
         self.start_time = time.time()
         while True:
             if self.stop:
                 break
-            line = file.readline()
-            if not line:
-                time.sleep(0.1)
-                continue
-            yield line
+            while True:
+                if self.stop:
+                    break
+                line = current.readline()
+                if not line:
+                    break
+                yield line
+            try:
+                if os.stat(self.log_path).st_ino != curino:
+                    print(f"Log rotation detected. Changing current inode to {curino}")
+                    new = open(self.log_path)
+                    current.close()
+                    current = new
+                    curino = os.fstat(current.fileno()).st_ino
+                    continue
+            except IOError:
+                pass
+            time.sleep(0.1)
 
     def test(self):
-        producer = Thread(target=self.producer)
-        self.threads.append(producer)
-        producer.start()
         for _ in range(self.max_workers-1):
             consumer = Thread(target=self.consumer)
             self.threads.append(consumer)
             consumer.start()
+        producer = Thread(target=self.producer)
+        self.threads.append(producer)
+        producer.start()
 
     def producer(self):
+        print("Watching logs")
         for line in self.read():
             try:
                 req = self.parse_line(line)
