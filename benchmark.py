@@ -100,11 +100,12 @@ class LoadTester:
                 yield line
             try:
                 if os.stat(self.log_path).st_ino != curino:
-                    print(f"Log rotation detected. Changing current inode to {curino}")
+                    print("Log rotation detected. Changing current inode: {}".format(curino))
                     new = open(self.log_path)
                     current.close()
                     current = new
                     curino = os.fstat(current.fileno()).st_ino
+                    print("New inode: {}".format(curino))
                     continue
             except IOError:
                 pass
